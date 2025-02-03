@@ -49,7 +49,7 @@
  * no slowdown from the prefixes is generally observed on AMD CPUs supporting
  * XOP, some slowdown is sometimes observed on Intel CPUs with AVX.
  */
-/*
+#ifdef __GNUC__
 #ifdef __XOP__
 #warning "Note: XOP is enabled.  That's great."
 #elif defined(__AVX__)
@@ -61,7 +61,7 @@
 #else
 #warning "Note: building generic code for non-x86.  That's OK."
 #endif
-*/
+#endif
 
 /*
  * The SSE4 code version has fewer instructions than the generic SSE2 version,
@@ -529,9 +529,7 @@ static volatile uint64_t Smask2var = Smask2;
 /* 64-bit without AVX.  This relies on out-of-order execution and register
  * renaming.  It may actually be fastest on CPUs with AVX(2) as well - e.g.,
  * it runs great on Haswell. */
-/*
 #warning "Note: using x86-64 inline assembly for pwxform.  That's great."
-*/
 #undef MAYBE_MEMORY_BARRIER
 #define MAYBE_MEMORY_BARRIER \
 	__asm__("" : : : "memory");

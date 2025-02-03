@@ -1,6 +1,7 @@
 package yespower
 
 /*
+#cgo CFLAGS: -std=gnu99 -march=native
 #include <yespower/sha256.c>
 #include <yespower/yespower-opt.c>
 #include <yespower/yespower.c>
