@@ -1,5 +1,5 @@
-module github.com/mraksoll4/yespower_go
+module github.com/cpuchain/go-yespower
 
 go 1.20
 
-require golang.org/x/crypto v0.8.0 // indirect
+require golang.org/x/crypto v0.32.0 // indirect
