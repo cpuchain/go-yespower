@@ -128,4 +128,4 @@ extern int yespower_tls(const uint8_t *src, size_t srclen,
 #endif
 
 #endif /* !_YESPOWER_H_ */
-void yespower_hash(const char* input, uint32_t inputLen, char* pers, uint32_t persLen, char* output);
+void yespower_hash(const char* input, uint32_t inputLen, uint32_t N, uint32_t r, char* pers, uint32_t persLen, char* output);

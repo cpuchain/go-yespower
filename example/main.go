@@ -12,7 +12,7 @@ func main() {
 
 	in, _ := hex.DecodeString(input)
 
-	out := hex.EncodeToString(yespower.Hash(in, ""))
+	out := hex.EncodeToString(yespower.Hash(in, uint32(2048), uint32(32), ""))
 
 	out2 := hex.EncodeToString(yespower.YespowerNative(in, 2048, 32, ""))
 	

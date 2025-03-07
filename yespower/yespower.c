@@ -1,10 +1,10 @@
 #include "yespower.h"
 
-void yespower_hash(const char* input, uint32_t inputLen, char* pers, uint32_t persLen, char* output) {
+void yespower_hash(const char* input, uint32_t inputLen, uint32_t N, uint32_t r, char* pers, uint32_t persLen, char* output) {
     const yespower_params_t params = {
         .version = YESPOWER_1_0,
-        .N = 2048,
-        .r = 32,
+        .N = N,
+        .r = r,
         .pers = (const uint8_t*)pers,
         .perslen = persLen
     };

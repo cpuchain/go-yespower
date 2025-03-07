@@ -10,10 +10,50 @@ import (
 type testCase struct {
 	input  string
 	output string
+	N      uint32
+	r      uint32
+	pers   string
 }
+
+const refInput string = "000306090c0f1215181b1e2124272a2d303336393c3f4245484b4e5154575a5d606366696c6f7275787b7e8184878a8d909396999c9fa2a5a8abaeb1b4b7babdc0c3c6c9cccfd2d5d8dbdee1e4e7eaed"
 
 func getTestCases() []testCase {
 	testCaseSlice := []testCase{
+		{
+			input: refInput,
+			output: "d5efb813cd263e9b34540130233cbbc6a921fbff3431e5ec1a1abde2aea6ff4d",
+		},
+		{
+			input: refInput,
+			output: "69e0e895b3df7aeeb837d71fe199e9d34f7ec46ecbca7a2c4308e51857ae9b46",
+			N: 2048,
+			r: 8,
+		},
+		{
+			input: refInput,
+			output: "33fb8f063824a4a020f63dca535f5ca66ab5576468c75d1ccaac7542f76495ac",
+			N: 4096,
+			r: 16,
+		},
+		{
+			input: refInput,
+			output: "771aeefda8fe79a0825bc7f2aee162ab5578574639ffc6ca3723cc18e5e3e285",
+			N: 4096,
+			r: 32,
+		},
+		{
+			input: refInput,
+			output: "501b792db42e388f6e7d453c95d03a12a36016a5154a688390ddc609a40c6799",
+			N: 1024,
+			r: 32,
+		},
+		{
+			input: refInput,
+			output: "1f0269acf565c49adc0ef9b8f26ab3808cdc38394a254fddeedcc3aacff6ad9d",
+			N: 1024,
+			r: 32,
+			pers: "personality test",
+		},
 		{
 			input:  "eebb7bf9a8c813b5e0a03ce627bd1a0c836e0a89793743666dc82b83e28e8f00",
 			output: "07d0c37029360872e56e95873d55dca1424e45b65266e7ec4f992625c5f836d7",
@@ -134,31 +174,30 @@ func getTestCases() []testCase {
 			input:  "2b5414a0d6fe1ada82f342a24448bc3ce52d533c268385940bded8bb3fc153c2",
 			output: "53c5082a759d7aa129a125b08e44b30cb1065e0bdbebce839791979369831b3b",
 		},
-	}
-	return testCaseSlice
-}
-
-func getPersCase() []testCase {
-	testCaseSlice := []testCase{
 		{
 			input:  "2538dad623dab29a3d5387804ab51dea411014fad9c47fb94b2d83e44358064b",
 			output: "62c4ac19375787857e2e7c41282a58fb68638a25ba27402239edc8d2683b5126",
+			pers:   "pers",
 		},
 		{
 			input:  "28d5ce4e064ddc5ecf7a62a65d245facb3b46d6d2d70cdcf5c413e1c4e205157",
 			output: "9f82d3a2d796ac89aa012c71ccad798f5e10cf515dd6fb0fedceb44271029d43",
+			pers:   "pers",
 		},
 		{
 			input:  "172aaa13d4b7d606134bc6989a84c403bac3b6c4f9f4504dd79b2618c11c63d3",
 			output: "5bd719de97d5dbc0012bd576f778994ae9d3eeb31e12cfadeb58133a34c2ebef",
+			pers:   "pers",
 		},
 		{
 			input:  "c9d4866805b9e9788cf1c7f6a369e8932e5bc6e32a5c7a06c3ecb7e0ec8ebaff",
 			output: "ac22b64773effd8d0dbb088bd71b27449ec5c8c21ecc0262f615e920ea2df2a6",
+			pers:   "pers",
 		},
 		{
 			input:  "fae4f16aed075d1e94b6d913242840ad3933bc675aa72f2f647f1df60c431963",
 			output: "a625f58d4585b8bad21509f34f715f6a15a5e2741a89642e937587b5c4b68e8a",
+			pers:   "pers",
 		},
 	}
 	return testCaseSlice
@@ -177,7 +216,7 @@ func TestYespower(t *testing.T) {
 		0xc0, 0xc3, 0xc6, 0xc9, 0xcc, 0xcf, 0xd2, 0xd5,
 		0xd8, 0xdb, 0xde, 0xe1, 0xe4, 0xe7, 0xea, 0xed}
 
-	out := hex.EncodeToString(Hash(in, ""))
+	out := hex.EncodeToString(Hash(in, 2048, 32, ""))
 
 	want := "d5efb813cd263e9b34540130233cbbc6a921fbff3431e5ec1a1abde2aea6ff4d"
 
@@ -194,34 +233,25 @@ func TestYespower(t *testing.T) {
 	for i, tt := range tests {
 		in, err := hex.DecodeString(tt.input)
 
+		N := tt.N
+		r := tt.r
+
+		if N == uint32(0) {
+			N = 2048
+		}
+
+		if r == uint32(0) {
+			r = 32
+		}
+
 		if err != nil {
 			t.Errorf("test %d: error %x", i, err)
 		}
 
-		out := hex.EncodeToString(Hash(in, ""))
+		out := hex.EncodeToString(Hash(in, N, r, tt.pers))
 
 		if out != tt.output {
 			t.Errorf("test %d: got %s want %s", in, out, tt.output)
-		}
-
-		fmt.Println(tt.input, out)
-	}
-
-	fmt.Println("testing 5 pers cases")
-
-	persTests := getPersCase()
-
-	for i, tt := range persTests {
-		in, err := hex.DecodeString(tt.input)
-
-		if err != nil {
-			t.Errorf("pers test %d: error %x", i, err)
-		}
-
-		out := hex.EncodeToString(Hash(in, "pers"))
-
-		if out != tt.output {
-			t.Errorf("pers test %d: got %s want %s", in, out, tt.output)
 		}
 
 		fmt.Println(tt.input, out)
@@ -249,7 +279,7 @@ func TestYespowerNative(t *testing.T) {
 		t.Errorf("got %s want %s", out, want)
 	}
 
-	fmt.Println(out)
+	fmt.Println(hex.EncodeToString(in), out)
 
 	fmt.Println("testing 30 cases")
 
@@ -258,34 +288,30 @@ func TestYespowerNative(t *testing.T) {
 	for i, tt := range tests {
 		in, err := hex.DecodeString(tt.input)
 
+		N := tt.N
+		r := tt.r
+
+		if N == uint32(0) {
+			N = 2048
+		}
+
+		if r == uint32(0) {
+			r = 32
+		}
+
+		// Skip native test when r is being used as output length
+		if r != uint32(32) {
+			continue
+		}
+
 		if err != nil {
 			t.Errorf("test %d: error %x", i, err)
 		}
 
-		out := hex.EncodeToString(YespowerNative(in, 2048, 32, ""))
+		out := hex.EncodeToString(YespowerNative(in, int(N), int(r), tt.pers))
 
 		if out != tt.output {
 			t.Errorf("test %d: got %s want %s", in, out, tt.output)
-		}
-
-		fmt.Println(tt.input, out)
-	}
-
-	fmt.Println("testing 5 pers cases")
-
-	persTests := getPersCase()
-
-	for i, tt := range persTests {
-		in, err := hex.DecodeString(tt.input)
-
-		if err != nil {
-			t.Errorf("pers test %d: error %x", i, err)
-		}
-
-		out := hex.EncodeToString(YespowerNative(in, 2048, 32, "pers"))
-
-		if out != tt.output {
-			t.Errorf("pers test %d: got %s want %s", in, out, tt.output)
 		}
 
 		fmt.Println(tt.input, out)
@@ -294,23 +320,25 @@ func TestYespowerNative(t *testing.T) {
 
 var result []byte
 
-func bench(b *testing.B, N int) {
+func bench(b *testing.B, N int, r int) {
 	for i := 0; i < b.N; i++ {
 		bs := make([]byte, 4)
 		binary.BigEndian.PutUint32(bs, uint32(i))
-		ignore := Hash(bs, "")
+		ignore := Hash(bs, uint32(N), uint32(r), "")
 		result = ignore
 	}
 }
 
-func benchNative(b *testing.B, N int) {
+func benchNative(b *testing.B, N int, r int) {
 	for i := 0; i < b.N; i++ {
 		bs := make([]byte, 4)
 		binary.BigEndian.PutUint32(bs, uint32(i))
-		ignore := YespowerNative(bs, 2048, 32, "")
+		ignore := YespowerNative(bs, N, r, "")
 		result = ignore
 	}
 }
 
-func BenchmarkYespower_1024(b *testing.B)       { bench(b, 1024) }
-func BenchmarkYespowerNative_1024(b *testing.B) { benchNative(b, 1024) }
+func BenchmarkYespower_1024(b *testing.B)       { bench(b, 1024, 8) }
+func BenchmarkYespower_2048(b *testing.B)       { bench(b, 2048, 32) }
+func BenchmarkYespowerNative_1024(b *testing.B) { benchNative(b, 1024, 8) }
+func BenchmarkYespowerNative_2048(b *testing.B) { benchNative(b, 2048, 32) }
